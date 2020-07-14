@@ -1,0 +1,12 @@
+pool:
+    name: Azure Pipelines
+  steps:
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.tool-installer.PowerPlatformToolInstaller@0
+    displayName: 'Power Platform Tool Installer '
+  
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.import-solution.PowerPlatformImportSolution@0
+    displayName: 'Power Platform Import Solution '
+    inputs:
+      PowerPlatformEnvironment: 'power auth makeshort'
+      SolutionInputFile: 'Build/SogetiReusableUIComponents_unmanaged.zip'
+  

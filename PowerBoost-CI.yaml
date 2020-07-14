@@ -1,0 +1,53 @@
+pool:
+    name: Azure Pipelines
+  variables:
+    gitUserEmail: '"vamsi@ajtechno.onmicrosoft.com"'
+    gitUserName: '"vamsi"'
+    SolutionName: 'SogetiReusableUIComponents'
+  
+  steps:
+  - script: |
+     git config --global user.email $(gitUserEmail)
+     git config --global user.name $(gitUserName)
+     
+     echo Checking out Production branch
+     git checkout Production
+     
+     echo removing current solution zip file
+     git rm Build\$(SolutionName)_unmanaged.zip
+     
+     echo commit removed
+     git add --all
+     git commit -m "reving solution"
+     
+    displayName: 'Clearing existing solution in prod'
+  
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.tool-installer.PowerPlatformToolInstaller@0
+    displayName: 'Power Platform Tool Installer '
+    inputs:
+      PowerAppsAdminVersion: 2.0.61
+      XrmToolingPackageDeploymentVersion: 3.3.0.882
+      CrmSdkCoreToolsVersion: 9.1.0.39
+  
+  - task: microsoft-IsvExpTools.PowerPlatform-BuildTools.export-solution.PowerPlatformExportSolution@0
+    displayName: 'Power Platform Export Solution '
+    inputs:
+      PowerPlatformEnvironment: 'power apps auth'
+      SolutionName: '$(SolutionName) '
+      SolutionOutputFile: 'Build\$(SolutionName)_unmanaged.zip'
+    timeoutInMinutes: 20
+  
+  - script: |
+      git config --global user.email $(gitUserEmail)
+      git config --global user.name $(gitUserName)
+     
+     echo Staging new solution
+     git add --all
+     
+     echo Committing changes 
+     git commit -m "solution init"
+     
+     echo Check in new solution
+     git push --force
+    displayName: 'Commit to Production Branch'
+  
